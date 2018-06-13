@@ -159,7 +159,7 @@ class Lora:
                     data = json.load(outfile)
                 except:
                     data = []
-                data.append(doc)
+                data.insert(0, doc)
             with open(session_file, 'w+') as outfile:
                 outfile.write(json.dumps(data))
 
@@ -181,10 +181,11 @@ class Lora:
             return self.db.find(q)
         else:
             session_file = "sessions/_.txt" if session is None else 'sessions/{}.txt'.format(session)
-            with open(session_file, 'r+') as outfile:
-                return json.load(outfile)
-
-        return []
+            try:
+                with open(session_file, 'r+') as outfile:
+                    return json.load(outfile)
+            except:
+                return []
 
     def session_exists(self, session):
         if self.db is not None:

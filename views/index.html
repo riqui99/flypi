@@ -216,8 +216,8 @@
                 <td><a onclick="show_session(\'' + session + '\')">' + session + '</a></td>\
                 <td width="1%"><button class="btn btn-flat" onclick="remove_session(\'' + session + '\')"><i class="material-icons">delete</i></button></td>\
                 <td width="1%">\
-                    <button class="btn btn-flat btn-start-session" onclick="start_session(\'' + session + '\')"><i class="material-icons">play_arrow</i></button>\
-                    <button class="btn btn-flat btn-finalize-session" onclick="finalize_session(\'' + session + '\')" style="display: none;"><i class="material-icons">stop</i></button>\
+                    <button class="btn btn-flat btn-start-session" onclick="start_session(\'' + session + '\')" ' + ((current_session != session) ? '' : 'style="display: none;"') + '><i class="material-icons">play_arrow</i></button>\
+                    <button class="btn btn-flat btn-finalize-session" onclick="finalize_session(\'' + session + '\')" ' + ((current_session == session) ? '' : 'style="display: none;"') + '><i class="material-icons">stop</i></button>\
                 </td>\
             </tr>';
         }
@@ -492,7 +492,7 @@
                 };
             }
             // apply padding (for better visualization)
-            var pad = 0.025;
+            var pad = 0.005;
             max_point.lat += pad;
             max_point.lon += pad;
             min_point.lat -= pad;
