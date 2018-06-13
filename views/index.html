@@ -329,7 +329,7 @@
                         <td>'+round(data[i].lat, 4)+'</td>\
                         <td>'+round(data[i].lon, 4)+'</td>\
                         <td>'+round(data[i].alt, 0)+'</td>\
-                        <td>'+moment(data[i].time, 'X').format('YYYY-MM-DD H:m')+'</td>\
+                        <td>'+moment(data[i].time, 'X').format('YYYY-MM-DD H:mm')+'</td>\
                     </tr>';
                     // DATA CHARTS
                     var vel = 0;
@@ -623,7 +623,7 @@
                     lat: ' + this.point.x + '<br/>\
                     lon: ' + this.point.z + '<br/>\
                     alt: ' + this.point.y + '<br/>\
-                    time: ' + moment(this.time).format("YYYY-MM-DD H:m");
+                    time: ' + moment(this.time).format("YYYY-MM-DD H:mm");
                 },
                 hideDelay: 600
             },
