@@ -28,6 +28,8 @@
         .btn-nav.active {background:#ccc;color: #666!important;}
         .clickable {cursor: pointer;}
         button.btn:hover, button.btn:hover {background: #ddd;}
+
+        #table_lat_lon_session td {padding: 10px 5px;}
     </style>
 
     <!-- Simulator three -->
@@ -58,14 +60,14 @@
     </div>
 
     <div id="container_history" class="window-content" style="position:absolute;z-index:0;width:100%;height:100%;display: none;">
-        <div id="history_list" style="padding:54px;">
+        <div id="history_list" style="padding:32px 54px;">
             <h3 style="margin-top: 0;">
                 <div class="right"><button class="btn btn-flat" onclick="open_create_session();"><i class="material-icons left">add</i> New Session</button></div>
                 Sessions
             </h3>
             <div id="sessions_list"></div>
         </div>
-        <div id="session_data" style="padding:54px;display:none;"></div>
+        <div id="session_data" style="padding:32px 54px;display:none;"></div>
     </div>
 
     <div id="container_live_img" style="position:absolute;bottom:32px;right:0;z-index:1;border:1px solid #444;display: none;">
@@ -313,12 +315,14 @@
                 min_lon: undefined,
                 data: data
             };
-            var html = '<h3 style="margin-top:0;"><i class="material-icons clickable" onclick="show(\'history\');" style="font-size: 32px;vertical-align: middle;">arrow_back</i> '+session+'</h3>';
+            var html = '<h3 style="margin-top:0;">' +
+                '<div class="right"><button class="btn btn-flat" onclick="show_session(\''+session+'\');"><i class="refresh"></i> Refresh</button></div>' +
+                '<i class="material-icons clickable" onclick="show(\'history\');" style="font-size: 32px;vertical-align: middle;">arrow_back</i> '+session+'' +
+            '</h3>';
 
             if(data.length > 0) {
-
                 var data_alt = [], data_velocity = [];
-                var html_table_results = '<table><thead><tr>\
+                var html_table_results = '<table id="table_lat_lon_session"><thead><tr>\
                     <th>Lat</th>\
                     <th>Lon</th>\
                     <th>Alt</th>\
@@ -349,10 +353,10 @@
                         ' + html_table_results + '\
                     </div>\
                     <div class="col s8">\
-                        <div id="chart_time"></div>\
+                        <b>Time Information</b>\
+                        <div id="chart_time" style="margin-top: 18px;"></div>\
                         <b>Lat/Lon Trajectory</b>\
                         <div><canvas id="lat_lon_trajectory"/></div>\
-                        <div>Here other info . . .</div>\
                     </div>\
                 </div>';
                 $("#session_data").html(html);
@@ -383,10 +387,10 @@
                         }
                     },
                     title: {
-                        text: 'Time Information'
+                        text: false
                     },
                     subtitle: {
-                        text: ''
+                        text: false
                     },
                     exporting: {
                         enabled: false
@@ -430,12 +434,10 @@
                         shared: true
                     },
                     legend: {
-                        layout: 'vertical',
-                        align: 'left',
-                        x: 120,
-                        verticalAlign: 'top',
-                        y: 100,
-                        floating: true,
+                        layout: 'horizontal',
+                        align: 'center',
+                        verticalAlign: 'bottom',
+                        floating: false,
                         backgroundColor: (Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'
                     },
                     series: [{

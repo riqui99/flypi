@@ -159,7 +159,7 @@ class Lora:
                     data = json.load(outfile)
                 except:
                     data = []
-                data.insert(0, doc)
+                data.append(doc)
             with open(session_file, 'w+') as outfile:
                 outfile.write(json.dumps(data))
 
