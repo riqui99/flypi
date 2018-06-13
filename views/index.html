@@ -72,7 +72,7 @@
         <img id="live_img" src="" style="width:460px;height:340px;background:#CCC;"/>
     </div>
 
-    <div id="footer" style="position:absolute;z-index:1;width:100%;bottom:0px;left:0px;background: #444;color:#fff;">
+    <div id="footer" style="position:fixed;z-index:1;width:100%;bottom:0px;left:0px;background: #444;color:#fff;">
         <div style="float: left;padding:8px;">FlyPi</div>
         <div id="container" style="float: left;padding:8px;"></div>
 
@@ -204,6 +204,7 @@
 
         // SESSIONS
         var current_session = undefined;
+        // List
         function get_sessions_list(){
             ws.send(JSON.stringify({
                 action: "get_sessions_list"
@@ -238,6 +239,7 @@
             }
             $("#sessions_list").html(html);
         }
+        // Manage
         function open_create_session(){
             var session_name = prompt("Please enter a session name:", "");
             if (session_name !== null && session_name !== "") {
@@ -273,30 +275,7 @@
             $(".btn-start-session").show();
             $(".btn-finalize-session").hide();
         }
-        function show_session(session){
-            $("#history_list").hide();
-            $("#session_data").show();
-            $("#session_data").html('<h3 class="center">Loading '+ session +' . . .</h3>');
-            ws.send(JSON.stringify({
-                action: "session_data",
-                session: session
-            }));
-        }
-        function render_session_data(session, data){
-            var html = '<h3 style="margin-top:0;"><i class="material-icons clickable" onclick="show(\'history\');" style="font-size: 32px;vertical-align: middle;">arrow_back</i> '+session+'</h3>';
-
-            if(data.length > 0) {
-                for (var i in data) {
-                    html += '<h4></h4>';
-                }
-            } else {
-                html += '\
-                <h4 class="center">No data in this session.</h4>\
-                <div class="center"><a onclick="show(\'history\');">Back to sessions list</a></div>';
-            }
-
-            $("#session_data").html(html);
-        }
+        // Remove
         function remove_session(session){
             var conf = confirm("Are you sure to remove this session?");
             if(conf === true){
@@ -314,6 +293,275 @@
             $("#session_" + session).remove();
             if($(".session-list").length == 0) $("#sessions_list").html('<h4 class="center">No sessions created</h4>')
         }
+        // Render
+        var current_session_data;
+        function show_session(session){
+            $("#history_list").hide();
+            $("#session_data").show();
+            $("#session_data").html('<h3 class="center">Loading '+ session +' . . .</h3>');
+            ws.send(JSON.stringify({
+                action: "session_data",
+                session: session
+            }));
+        }
+        function render_session_data(session, data){
+            current_session_data = {
+                session: session,
+                max_lat: undefined,
+                min_lat: undefined,
+                max_lon: undefined,
+                min_lon: undefined,
+                data: data
+            };
+            var html = '<h3 style="margin-top:0;"><i class="material-icons clickable" onclick="show(\'history\');" style="font-size: 32px;vertical-align: middle;">arrow_back</i> '+session+'</h3>';
+
+            if(data.length > 0) {
+
+                var data_alt = [], data_velocity = [];
+                var html_table_results = '<table><thead><tr>\
+                    <th>Lat</th>\
+                    <th>Lon</th>\
+                    <th>Alt</th>\
+                    <th>Time</th>\
+                </tr></thead><tbody>';
+                for (var i in data) {
+                    html_table_results += '<tr>\
+                        <td>'+round(data[i].lat, 4)+'</td>\
+                        <td>'+round(data[i].lon, 4)+'</td>\
+                        <td>'+round(data[i].alt, 0)+'</td>\
+                        <td>'+moment(data[i].time, 'X').format('YYYY-MM-DD H:m')+'</td>\
+                    </tr>';
+                    // DATA CHARTS
+                    var vel = 0;
+                    if(i > 0) vel = (data[i].alt - data[i-1].alt) / (data[i].time - data[i-1].time);
+                    data_alt.push([data[i].time * 1000, data[i].alt]);
+                    data_velocity.push([data[i].time * 1000, vel]);
+
+                    // DATA TRAJECTORY
+                    if(current_session_data.max_lat == undefined || current_session_data.max_lat < data[i].lat) current_session_data.max_lat = data[i].lat;
+                    if(current_session_data.min_lat == undefined || current_session_data.min_lat > data[i].lat) current_session_data.min_lat = data[i].lat;
+                    if(current_session_data.max_lon == undefined || current_session_data.max_lon < data[i].lon) current_session_data.max_lon = data[i].lon;
+                    if(current_session_data.min_lon == undefined || current_session_data.min_lon > data[i].lon) current_session_data.min_lon = data[i].lon;
+                }
+                html_table_results += '</tbody></table>';
+                html += '<div class="row">\
+                    <div class="col s4">\
+                        ' + html_table_results + '\
+                    </div>\
+                    <div class="col s8">\
+                        <div id="chart_time"></div>\
+                        <b>Lat/Lon Trajectory</b>\
+                        <div><canvas id="lat_lon_trajectory"/></div>\
+                        <div>Here other info . . .</div>\
+                    </div>\
+                </div>';
+                $("#session_data").html(html);
+
+                var chart_time = Highcharts.chart('chart_time', {
+                    chart: {
+                        zoomType: 'x',
+                        events: {
+                            selection: function (event) {
+                                if(event.resetSelection === true) draw_lat_lon_trajectory(current_session_data.data);
+                                else {
+                                    var data = [],
+                                        max_lat, max_lon,min_lat, min_lon;
+                                    for (var i in current_session_data.data) {
+                                        if (current_session_data.data[i].time * 1000 < event.xAxis[0].min) continue;
+                                        if (current_session_data.data[i].time * 1000 > event.xAxis[0].max) break;
+                                        data.push(current_session_data.data[i]);
+
+                                        if(max_lat == undefined || max_lat < current_session_data.data[i].lat) max_lat = current_session_data.data[i].lat;
+                                        if(min_lat == undefined || min_lat > current_session_data.data[i].lat) min_lat = current_session_data.data[i].lat;
+                                        if(max_lon == undefined || max_lon < current_session_data.data[i].lon) max_lon = current_session_data.data[i].lon;
+                                        if(min_lon == undefined || min_lon > current_session_data.data[i].lon) min_lon = current_session_data.data[i].lon;
+
+                                    }
+                                    draw_lat_lon_trajectory(data, {lat:max_lat, lon:max_lon}, {lat:min_lat, lon:min_lon});
+                                }
+                            }
+                        }
+                    },
+                    title: {
+                        text: 'Time Information'
+                    },
+                    subtitle: {
+                        text: ''
+                    },
+                    exporting: {
+                        enabled: false
+                    },
+                    credits: {
+                        enabled: false
+                    },
+                    xAxis: [{
+                        type: 'datetime'
+                    }],
+                    yAxis: [{ // Primary yAxis
+                        labels: {
+                            format: '{value} m/s',
+                            style: {
+                                color: Highcharts.getOptions().colors[1]
+                            }
+                        },
+                        title: {
+                            text: 'Velocity',
+                            style: {
+                                color: Highcharts.getOptions().colors[1]
+                            }
+                        }
+                    },
+                    { // Secondary yAxis
+                        title: {
+                            text: 'Altitude',
+                            style: {
+                                color: Highcharts.getOptions().colors[0]
+                            }
+                        },
+                        labels: {
+                            format: '{value} m',
+                            style: {
+                                color: Highcharts.getOptions().colors[0]
+                            }
+                        },
+                        opposite: true
+                    }],
+                    tooltip: {
+                        shared: true
+                    },
+                    legend: {
+                        layout: 'vertical',
+                        align: 'left',
+                        x: 120,
+                        verticalAlign: 'top',
+                        y: 100,
+                        floating: true,
+                        backgroundColor: (Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'
+                    },
+                    series: [{
+                        name: 'Altitude',
+                        type: 'spline',
+                        yAxis: 1,
+                        data: data_alt,
+                        tooltip: {
+                            valueSuffix: ' m'
+                        }
+
+                    },
+                    {
+                        name: 'Velocity',
+                        type: 'spline',
+                        data: data_velocity,
+                        tooltip: {
+                            valueSuffix: 'm/s'
+                        }
+                    }]
+                });
+
+                draw_lat_lon_trajectory(data);
+
+            } else {
+                html += '\
+                <h4 class="center">No data in this session.</h4>\
+                <div class="center"><a onclick="show(\'history\');">Back to sessions list</a></div>';
+                $("#session_data").html(html);
+            }
+
+        }
+        function draw_lat_lon_trajectory(data, max_point, min_point){
+            var w = $("#lat_lon_trajectory").parent().width(),
+                h = w / (16/9);
+            $("#lat_lon_trajectory").prop('width', w);
+            $("#lat_lon_trajectory").prop('height', h);
+
+            var canvas = $("#lat_lon_trajectory").get(0);
+            var ctx = canvas.getContext("2d");
+
+            // lat = y;
+            // lon = x;
+            if (max_point == undefined) {
+                max_point = {
+                    lat: current_session_data.max_lat,
+                    lon: current_session_data.max_lon
+                };
+            }
+            if (min_point == undefined) {
+                min_point = {
+                    lat: current_session_data.min_lat,
+                    lon: current_session_data.min_lon
+                };
+            }
+            // apply padding (for better visualization)
+            var pad = 0.025;
+            max_point.lat += pad;
+            max_point.lon += pad;
+            min_point.lat -= pad;
+            min_point.lon -= pad;
+
+            var total_lon = (max_point.lon - min_point.lon);
+            var total_lat = (max_point.lat - min_point.lat);
+            var radius = 5;
+            var prev_x, prev_y;
+            for(var i in data) {
+                var x = ((data[i].lon - min_point.lon) / total_lon) * w;
+                var y = ((data[i].lat - min_point.lat) / total_lat) * h;
+
+                var color;
+                if(i == 0) {  // START POINT
+                    color = "orange";
+
+                    ctx.beginPath();
+                    ctx.fillStyle = color;
+                    ctx.arc(x, y, radius + 2, 0, 2 * Math.PI);
+                    ctx.fill();
+
+                    ctx.beginPath();
+                    ctx.strokeStyle = color;
+                    ctx.arc(x, y, radius + 7, 0, 2 * Math.PI);
+                    ctx.stroke();
+
+                } else if(i == data.length - 1) { // END POINT
+                    if (data[i].alt > data[i - 1].alt) color = "red";  // PUJANT
+                    else color = "green"; // BAIXANT
+
+                    ctx.beginPath();
+                    ctx.strokeStyle = color;
+                    ctx.moveTo(prev_x, prev_y);
+                    ctx.lineTo(x, y);
+                    ctx.stroke();
+
+                    color = "black";
+
+                    ctx.beginPath();
+                    ctx.fillStyle = color;
+                    ctx.arc(x, y, radius + 2, 0, 2 * Math.PI);
+                    ctx.fill();
+
+                    ctx.beginPath();
+                    ctx.strokeStyle = color;
+                    ctx.arc(x, y, radius + 7, 0, 2 * Math.PI);
+                    ctx.stroke();
+                } else {  // FLIGHT
+                    if (data[i].alt > data[i - 1].alt) color = "red";  // PUJANT
+                    else color = "green"; // BAIXANT
+
+                    ctx.beginPath();
+                    ctx.strokeStyle = color;
+                    ctx.moveTo(prev_x, prev_y);
+                    ctx.lineTo(x, y);
+                    ctx.stroke();
+
+                    ctx.beginPath();
+                    ctx.fillStyle = color;
+                    ctx.arc(x, y, radius, 0, 2 * Math.PI);
+                    ctx.fill();
+                }
+
+                prev_x = x;
+                prev_y = y;
+            }
+        }
+
 
         // SIMULATOR
         // var simulator = new Simulator("screen");
@@ -439,6 +687,11 @@
             H.addEvent(chart.container, 'touchstart', dragStart);
         }(Highcharts));
 
+
+        // GLOBALS
+        function round(val, decimals){
+            return parseFloat(val).toFixed(decimals);
+        }
 
     </script>
 

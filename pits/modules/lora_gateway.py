@@ -40,6 +40,7 @@ class Lora:
             self.db.server_info()
         except:
             print "No MongoDB Found"
+            self.new_session("_")
             self.db = None
 
         self.init_lora()
@@ -150,6 +151,17 @@ class Lora:
     def save_data(self, doc):
         if self.db is not None:
             self.db.insert(doc)
+        else:
+            session_file = "_.txt" if self.session is None else 'sessions/{}.txt'.format(self.session)
+
+            with open(session_file, 'r+') as outfile:
+                try:
+                    data = json.load(outfile)
+                except:
+                    data = []
+                data.append(doc)
+            with open(session_file, 'w+') as outfile:
+                outfile.write(json.dumps(data))
 
     def get_stored_data(self, payload=None, start_time=None, end_time=None, session=None):
         if self.db is not None:
@@ -167,15 +179,31 @@ class Lora:
                     q["time"]["$lt"] = end_time
 
             return self.db.find(q)
+        else:
+            session_file = "_.txt" if session is None else 'sessions/{}.txt'.format(session)
+            with open(session_file, 'r+') as outfile:
+                return json.load(outfile)
+
         return []
 
     def session_exists(self, session):
         if self.db is not None:
             row = self.db.find_one({"session": session})
             return row is not None
+        # File Session Mode
+        if os.path.isfile('sessions/{}.txt'.format(session)):
+            return True
         return False
 
+    def new_session(self, session):
+        # File Session Mode
+        if not os.path.isfile('sessions/{}.txt'.format(session)):
+            f = open('sessions/{}.txt'.format(session), "w+")
+            f.close()
+
     def start_session(self, session):
+        if self.db is None:
+            self.new_session(session)
         self.session = session
 
     def finalize_session(self):
@@ -187,13 +215,21 @@ class Lora:
 
         if self.db is not None:
             self.db.remove({"session": session})
+        else:
+            if os.path.isfile('sessions/{}.txt'.format(session)):
+                os.remove('sessions/{}.txt'.format(session))
 
         return True
 
     def get_sessions_list(self):
-        sessions_list = []
-        if self.db is not None:
-            sessions_list = self.db.distinct("session")
+        try:
+            if self.db is not None:
+                sessions_list = self.db.distinct("session")
+            else:
+                sessions_list = [f.replace(".txt", "") for f in os.listdir("sessions") if f != "_.txt" and os.path.isfile(os.path.join("sessions", f))]
+        except:
+            sessions_list = []
+
         return sessions_list
 
     # SIMULATE GLOBE POSITIONS
@@ -228,6 +264,17 @@ class Lora:
                 self.lon = 2.1548483
                 self.alt = 0
                 start_time = time.time()
+
+            self.save_data({
+                "payload": self.payload,
+                "channel": self.channel,
+                "lat": self.lat,
+                "lon": self.lon,
+                "alt": self.alt,
+                "session": self.session,
+                "time": self.time,
+                "updated_time": int(time.time())
+            })
 
             time.sleep(10)
 

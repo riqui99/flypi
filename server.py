@@ -85,9 +85,11 @@ def handle_websocket():
                 if lora.session_exists(session):
                     wsock.send(json.dumps({
                         "action": "new_session",
-                        "data": False
+                        "data": False,
+                        "session": session
                     }))
                 else:
+                    lora.new_session(session)
                     wsock.send(json.dumps({
                         "action": "new_session",
                         "data": True,
