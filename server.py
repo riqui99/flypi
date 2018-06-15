@@ -8,7 +8,26 @@ from gevent.pywsgi import WSGIServer
 from geventwebsocket import WebSocketError
 from geventwebsocket.handler import WebSocketHandler
 
+from config import Config, FileConfig
 from pits.modules.lora_gateway import Lora
+
+# CONFIGURATION
+import argparse
+
+parser = argparse.ArgumentParser(description='Start Flypi Server.')
+parser.add_argument('--config', '-c', default=None,
+                    help='Configuration file to change parameters (default: server_port on 80, MongoDB connection on localhost:27017)')
+
+args = parser.parse_args()
+
+config = Config()
+try:
+    if args.config is not None:
+        config = FileConfig(args.config)
+except:
+    print "Failed parsing config file, please check that file is accessible and well formatted."
+    exit()
+
 
 app = Bottle()
 
@@ -134,7 +153,7 @@ def data_loop(wsock, message):
         print "WebSocketError, finish thread"
 
 
-lora = Lora(simulate=True)
-server = WSGIServer(("0.0.0.0", 8080), app, handler_class=WebSocketHandler)
-print "Serving on port 8080"
+lora = Lora(simulate=True, mongo_host=config.mongo_host, mongo_port=config.mongo_port)
+server = WSGIServer(("0.0.0.0", config.server_port), app, handler_class=WebSocketHandler)
+print "Serving on port {}".format(config.server_port)
 server.serve_forever()

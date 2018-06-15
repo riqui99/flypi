@@ -8,7 +8,7 @@ Flipy is a web-based user interface to interact with data that comes from [Pi-in
 
 Clone this repository and access on it
 ```
-git clone https://github.com/riqui99/flypi.git
+git clone https://github.com/riqui99/flypi
 cd flypi
 ```
 
@@ -22,9 +22,9 @@ sudo pip install pymongo  # optional
 sudo pip install -r requirements.txt
 ```
 
->Notes:
->· If you have problems with installation on a Mac, try `brew reinstall python@2` (using Homebrew) and retry!
->· For performance, flypi allows you to save the sessions of flights in MongoDB, but this is not a requirement. If you do not have it installed on the system, it is automatically detected and the sessions being stored on file system.
+>Note: If you have problems with installation on a Mac, try `brew reinstall python@2` (using Homebrew) and retry!
+
+>Note: For performance, flypi allows you to save the sessions of flights in MongoDB, but this is not a requirement. If you do not have it installed on the system, it is automatically detected and the sessions being stored on file system.
 
 
 ## How to run
@@ -42,10 +42,9 @@ The config file is a json file (you can found an example called config.json on t
   - mongo_host: If you want to use MongoDB remotely, you can define the host using this parameter
   - mongo_port: Port for MongoDB connection
 
-### Todos
+## Todos
 
  - Reconnection socket
- - Parse config file
  - Add more statistics in session section
  - Use all JS dependencies locally (jquey, materializecss, moment, leaflet, material icons)
  - Improve popups (now are using javascript native for confirmations - create session)

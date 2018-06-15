@@ -12,7 +12,7 @@ import time
 
 class Lora:
 
-    def __init__(self, host="localhost", port=6004, debug=False, simulate=False):
+    def __init__(self, host="localhost", port=6004, debug=False, simulate=False, mongo_host='localhost', mongo_port=27017):
         self.payload = ""
         self.channel = ""
         self.lat = 0
@@ -35,7 +35,7 @@ class Lora:
         self.lora_socket = None
 
         try:
-            mongo = MongoClient()
+            mongo = MongoClient(["{}:{}".format(mongo_host, mongo_port)])
             self.db = mongo["flypi"]["data"]
             self.db.server_info()
         except:
