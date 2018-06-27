@@ -1,3 +1,5 @@
+import sys
+import os
 import json
 from threading import Thread
 
@@ -156,4 +158,12 @@ def data_loop(wsock, message):
 lora = Lora(simulate=True, mongo_host=config.mongo_host, mongo_port=config.mongo_port)
 server = WSGIServer(("0.0.0.0", config.server_port), app, handler_class=WebSocketHandler)
 print "Serving on port {}".format(config.server_port)
-server.serve_forever()
+
+try:
+    server.serve_forever()
+except KeyboardInterrupt:
+        print 'Script interrupted'
+        try:
+            sys.exit(0)
+        except SystemExit:
+            os._exit(0)
