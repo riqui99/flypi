@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html>
 <head>
-
     <link rel="shortcut icon" type="image/png" href="/static/img/flypi-256.png"/>
 
     <!--Import Google Icon Font-->
@@ -22,18 +21,7 @@
             integrity="sha512-/Nsx9X4HebavoBvEBuyp3I7od5tA0UzAxs+j83KgC8PU0kgB4XiK4Lfe4y4cgBtaRJQEIFCW+oC506aPT2L1zw=="
             crossorigin=""></script>
 
-    <style>
-        body { margin: 0; }
-        canvas { width: 100%; height: 100% }
-        a {cursor: pointer;}
-        .btn-nav {color:white;cursor: pointer;}
-        .btn-nav:hover {background:#ccc;color: #666!important;}
-        .btn-nav.active {background:#ccc;color: #666!important;}
-        .clickable {cursor: pointer;}
-        button.btn:hover, button.btn:hover {background: #ddd;}
-
-        #table_lat_lon_session td {padding: 10px 5px;}
-    </style>
+    <link rel="stylesheet" type="text/css" href="/static/styles/main.css">
 
     <!-- Simulator three -->
     <!--<script src="/static/js/three/three.js"></script>-->
@@ -50,7 +38,6 @@
     <script src="https://code.highcharts.com/modules/export-data.js"></script>
 
 </head>
-
 <body>
 
     <div id="container_map" class="window-content" style="position:absolute;z-index:0;width:100%;height:100%;">
@@ -91,6 +78,9 @@
 
     </div>
 
+
+    <!-- scripts -->
+    <script src="/static/js/utils.js"></script>
     <script type="text/javascript">
         var data = {};
         var ws_host = document.location.host;
@@ -692,14 +682,7 @@
             H.addEvent(chart.container, 'touchstart', dragStart);
         }(Highcharts));
 
-
-        // GLOBALS
-        function round(val, decimals){
-            return parseFloat(val).toFixed(decimals);
-        }
-
     </script>
 
 </body>
-
 </html>
