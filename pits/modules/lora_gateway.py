@@ -227,7 +227,7 @@ class Lora:
             if self.db is not None:
                 sessions_list = self.db.distinct("session")
             else:
-                sessions_list = [f.replace(".txt", "") for f in os.listdir("sessions") if f != "_.txt" and os.path.isfile(os.path.join("sessions", f))]
+                sessions_list = [f.replace(".txt", "") for f in os.listdir("sessions") if f != "_.txt" if f != ".gitignore" and os.path.isfile(os.path.join("sessions", f))]
         except:
             sessions_list = []
 
