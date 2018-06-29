@@ -18,7 +18,7 @@ import argparse
 
 parser = argparse.ArgumentParser(description='Start Flypi Server.')
 parser.add_argument('--config', '-c', default=None,
-                    help='Configuration file to change parameters (default: server_port on 80, MongoDB connection on localhost:27017)')
+                    help='Configuration file to change parameters (default: server_port on 8080, MongoDB connection on localhost:27017)')
 
 args = parser.parse_args()
 
