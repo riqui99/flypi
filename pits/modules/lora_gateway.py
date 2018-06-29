@@ -256,11 +256,11 @@ class Lora:
                        ", alt = " + str(self.alt))
 
             sim_time = time.time() - start_time
-            if sim_time < (20 * 60):  # SUBIENDO
-                self.alt += 10
-            elif (20 * 60) < sim_time < (40 * 60):  # BAJANDO
-                self.alt -= 10
-            else:  # REINICIAR
+            if sim_time < (20 * 60):  # RISING
+                self.alt += 50
+            elif (20 * 60) < sim_time < (40 * 60):  # GOING DOWN
+                self.alt -= 50
+            else:  # RESET
                 self.lat = 41.4911619
                 self.lon = 2.1548483
                 self.alt = 0
