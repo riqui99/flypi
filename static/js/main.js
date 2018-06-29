@@ -23,8 +23,8 @@ ws.onmessage = function (evt) {
 		marker.setLatLng([data.lat, data.lon]);
 		mymap.panTo(new L.LatLng(data.lat, data.lon));
 
-		var color = "red";  // GLOBO ESTA PUJANT
-		if(chart.series[0].points.length > 0 && chart.series[0].points[chart.series[0].points.length-1].y > data.alt) color = "green";  // GLOBO ESTA BAIXANT
+		var color = "red";  // The balloon is rising
+		if(chart.series[0].points.length > 0 && chart.series[0].points[chart.series[0].points.length-1].y > data.alt) color = "green";  // The balloon is going down
 		chart.series[0].addPoint({
 			x: data.lat,
 			z: data.lon,
@@ -436,8 +436,8 @@ function draw_lat_lon_trajectory(data, max_point, min_point){
 			ctx.stroke();
 
 		} else if(i == data.length - 1) { // END POINT
-			if (data[i].alt > data[i - 1].alt) color = "red";  // PUJANT
-			else color = "green"; // BAIXANT
+			if (data[i].alt > data[i - 1].alt) color = "red";  // RISING
+			else color = "green"; // GOING DOWN
 
 			ctx.beginPath();
 			ctx.strokeStyle = color;
@@ -457,8 +457,8 @@ function draw_lat_lon_trajectory(data, max_point, min_point){
 			ctx.arc(x, y, radius + 7, 0, 2 * Math.PI);
 			ctx.stroke();
 		} else {  // FLIGHT
-			if (data[i].alt > data[i - 1].alt) color = "red";  // PUJANT
-			else color = "green"; // BAIXANT
+			if (data[i].alt > data[i - 1].alt) color = "red";  // RISING
+			else color = "green"; // GOING DOWN
 
 			ctx.beginPath();
 			ctx.strokeStyle = color;
