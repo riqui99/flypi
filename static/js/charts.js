@@ -54,7 +54,7 @@ var chart = new Highcharts.Chart({
 		text: 'Live Position'
 	},
 	subtitle: {
-		text: 'Trajectory described by the balloon since browser being opened'
+		text: 'Trajectory described by the balloon since browser being opened or page is reloaded'
 	},
 	tooltip: {
 		followPointer: false,
