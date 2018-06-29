@@ -17,7 +17,7 @@ Then, using [pip](https://pip.pypa.io/en/stable/installing/) package manager for
 ```
 sudo pip install bottle
 sudo pip install gevent-websocket
-sudo pip install pymongo  # optional
+sudo pip install pymongo
 // or
 sudo pip install -r requirements.txt
 ```
