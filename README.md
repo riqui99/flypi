@@ -44,7 +44,7 @@ The config file is a json file (you can found an example called config.json on t
 
  - Reconnection socket
  - Add more statistics in session section
- - Use all JS dependencies locally (materializecss, moment, leaflet, material icons, highcharts)
+ - Use all JS dependencies locally (moment, leaflet, material icons, highcharts)
  - Improve popups (now are using javascript native for confirmations - create session)
  - Add navigation to follow the balloon on live with map.
  - Share in social media (create a public area in another server to sync sessions amd make public flights)
