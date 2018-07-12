@@ -17,12 +17,10 @@ Then, using [pip](https://pip.pypa.io/en/stable/installing/) package manager for
 ```
 sudo pip install bottle
 sudo pip install gevent-websocket
-sudo pip install pymongo  # optional
+sudo pip install pymongo
 // or
 sudo pip install -r requirements.txt
 ```
-
->Note: If you have problems with installation on a Mac, try `brew reinstall python@2` (using Homebrew) and retry!
 
 >Note: For performance, flypi allows you to save the sessions of flights in MongoDB, but this is not a requirement. If you do not have it installed on the system, it is automatically detected and the sessions being stored on file system.
 
@@ -46,7 +44,7 @@ The config file is a json file (you can found an example called config.json on t
 
  - Reconnection socket
  - Add more statistics in session section
- - Use all JS dependencies locally (jquey, materializecss, moment, leaflet, material icons)
+ - Use all JS dependencies locally (leaflet, material icons, highcharts)
  - Improve popups (now are using javascript native for confirmations - create session)
  - Add navigation to follow the balloon on live with map.
  - Share in social media (create a public area in another server to sync sessions amd make public flights)

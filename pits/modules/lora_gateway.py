@@ -227,7 +227,7 @@ class Lora:
             if self.db is not None:
                 sessions_list = self.db.distinct("session")
             else:
-                sessions_list = [f.replace(".txt", "") for f in os.listdir("sessions") if f != "_.txt" and os.path.isfile(os.path.join("sessions", f))]
+                sessions_list = [f.replace(".txt", "") for f in os.listdir("sessions") if f != "_.txt" if f != ".gitignore" and os.path.isfile(os.path.join("sessions", f))]
         except:
             sessions_list = []
 
@@ -256,11 +256,11 @@ class Lora:
                        ", alt = " + str(self.alt))
 
             sim_time = time.time() - start_time
-            if sim_time < (20 * 60):  # SUBIENDO
-                self.alt += 10
-            elif (20 * 60) < sim_time < (40 * 60):  # BAJANDO
-                self.alt -= 10
-            else:  # REINICIAR
+            if sim_time < (20 * 60):  # RISING
+                self.alt += 50
+            elif (20 * 60) < sim_time < (40 * 60):  # GOING DOWN
+                self.alt -= 50
+            else:  # RESET
                 self.lat = 41.4911619
                 self.lon = 2.1548483
                 self.alt = 0

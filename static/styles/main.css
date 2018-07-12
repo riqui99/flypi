@@ -1,0 +1,9 @@
+body { margin: 0; }
+canvas { width: 100%; height: 100% }
+a {cursor: pointer;}
+.btn-nav {color:white;cursor: pointer;}
+.btn-nav:hover {background:#ccc;color: #666!important;}
+.btn-nav.active {background:#ccc;color: #666!important;}
+.clickable {cursor: pointer;}
+button.btn:hover, button.btn:hover {background: #ddd;}
+#table_lat_lon_session td {padding: 10px 5px;}
