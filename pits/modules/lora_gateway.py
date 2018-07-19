@@ -34,8 +34,8 @@ class Lora:
         try:
             from pymongo import MongoClient
             mongo = MongoClient(["{}:{}".format(mongo_host, mongo_port)])
+            mongo.server_info()
             self.db = mongo["flypi"]["data"]
-            self.db.server_info()
         except:
             print "No MongoDB Found"
             self.new_session("_")
