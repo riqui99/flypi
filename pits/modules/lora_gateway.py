@@ -4,9 +4,6 @@ import os
 import socket
 import random
 from threading import Thread
-from pymongo import MongoClient
-
-
 import time
 
 
@@ -35,6 +32,7 @@ class Lora:
         self.lora_socket = None
 
         try:
+            from pymongo import MongoClient
             mongo = MongoClient(["{}:{}".format(mongo_host, mongo_port)])
             self.db = mongo["flypi"]["data"]
             self.db.server_info()
