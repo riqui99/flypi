@@ -58,7 +58,7 @@ class Lora:
                 thread = Thread(target=self.process_lora, args=())
                 thread.start()
             except:
-                print("ERROR en Gateway")
+                print("ERROR on Gateway")
                 if self.lora_socket is not None:
                     self.lora_socket.close()
                 time.sleep(5)
