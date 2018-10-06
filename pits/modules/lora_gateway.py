@@ -5,6 +5,16 @@ import socket
 import random
 from threading import Thread
 import time
+from datetime import datetime
+from time import mktime
+
+
+def gateway_time_to_timestamp(gatewayTime="00:00:00"):
+    dt = datetime.strptime(gatewayTime, "%H:%M:%S")
+    dt_now = datetime.now()
+    dt = dt.replace(year=dt_now.year, month=dt_now.month, day=dt_now.day)
+    result = time.mktime(dt.timetuple())
+    return result
 
 
 class Lora:
@@ -94,14 +104,20 @@ class Lora:
                                     self.channel = json_data['channel']
 
                                     self.payload = json_data['payload']
-                                    if json_data['time'] != self.time:
+
+                                    timeConverted = gateway_time_to_timestamp(json_data['time'])
+
+                                    if self.debug:
+                                        print("timeConverted: " + timeConverted)
+
+                                    if timeConverted != self.time:
                                         if self.time == '':
                                             print "First telemetry from payload " + json_data['payload']
                                         elif int(time.time()) > (self.lastupdate + 60):
                                             print "Resumed telemetry from payload " + json_data['payload']
                                         self.lastupdate = int(time.time())
 
-                                    self.time = json_data['time']
+                                    self.time = timeConverted
                                     self.lat = json_data['lat']
                                     self.lon = json_data['lon']
                                     self.alt = json_data['alt']
@@ -113,7 +129,7 @@ class Lora:
                                         "lon": json_data['lon'],
                                         "alt": json_data['alt'],
                                         "session": self.session,
-                                        "time": json_data['time'],
+                                        "time": timeConverted,
                                         "updated_time": int(time.time())
                                     })
 
@@ -230,6 +246,7 @@ class Lora:
             sessions_list = []
 
         return sessions_list
+
 
     # SIMULATE GLOBE POSITIONS
     def start_simulation(self):
