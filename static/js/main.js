@@ -15,6 +15,11 @@ ws.onmessage = function (evt) {
 
 	if(json.action == "payload_data") {
 		data = json.data;
+
+		// Set link to view position of ballon on a Google Maps
+		let linkGoogleMaps = document.getElementById('link-google-maps');
+		linkGoogleMaps.href = `https://www.google.com/maps/search/?api=1&query=${data.lat},${data.lon}`;
+
 		var str = data.channel + " " + data.payload + ": " +
 				"lat=" + data.lat + " lon=" + data.lon + " alt=" + data.alt +
 				", t=" + data.time;
