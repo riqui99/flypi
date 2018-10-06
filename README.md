@@ -40,6 +40,19 @@ The config file is a json file (you can found an example called config.json on t
   - mongo_host: If you want to use MongoDB remotely, you can define the host using this parameter
   - mongo_port: Port for MongoDB connection
 
+
+## Some features
+View position of balloon in a map.
+![map_view](doc-assets/map_view.png)
+
+
+View trajectory of balloon in a three-dimensional graph.
+![graph_view](doc-assets/graph_view.png)
+
+
+Save sessions with data of the flights and view usefull graphs.
+![session_view](doc-assets/session_view.png)
+
 ## Todos
 
  - Reconnection socket
