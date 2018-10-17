@@ -53,6 +53,11 @@ View trajectory of balloon in a three-dimensional graph.
 Save sessions with data of the flights and view usefull graphs.
 ![session_view](doc-assets/session_view.png)
 
+
+## Run the tests:
+`python test/tests.py`
+
+
 ## Todos
 
  - Reconnection socket
