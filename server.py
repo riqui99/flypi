@@ -5,6 +5,7 @@ from threading import Thread
 
 import time
 from bottle import request, Bottle, abort, template, static_file
+import socket
 
 from gevent.pywsgi import WSGIServer
 from geventwebsocket import WebSocketError
@@ -157,7 +158,11 @@ def data_loop(wsock, message):
 
 lora = Lora(simulate=True, mongo_host=config.mongo_host, mongo_port=config.mongo_port)
 server = WSGIServer(("0.0.0.0", config.server_port), app, handler_class=WebSocketHandler)
-print "Serving on port {}".format(config.server_port)
+try:
+    print "Serving on IP: {}".format(socket.gethostbyname(socket.gethostname()))
+    print "Serving on port: {}".format(config.server_port)
+except:
+    print('Error on startup')
 
 try:
     server.serve_forever()
