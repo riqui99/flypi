@@ -38,7 +38,7 @@ class Lora:
             mongo.server_info()
             self.db = mongo["flypi"]["data"]
         except:
-            print "No MongoDB Found"
+            print ("No MongoDB Found")
             self.new_session("_")
             self.db = None
 
@@ -54,12 +54,12 @@ class Lora:
                 self.lora_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 self.lora_socket.connect((self.host, self.port))
 
-                print("Connected to gateway")
+                print ("Connected to gateway")
 
                 thread = Thread(target=self.process_lora, args=())
                 thread.start()
             except:
-                print("ERROR on Gateway")
+                print ("ERROR on Gateway")
                 if self.lora_socket is not None:
                     self.lora_socket.close()
                 time.sleep(5)
@@ -99,13 +99,13 @@ class Lora:
                                     timeConverted = gateway_time_to_timestamp(json_data['time'])
 
                                     if self.debug:
-                                        print("timeConverted: " + timeConverted)
+                                        print ("timeConverted: " + timeConverted)
 
                                     if timeConverted != self.time:
                                         if self.time == '':
-                                            print "First telemetry from payload " + json_data['payload']
+                                            print ("First telemetry from payload " + json_data['payload'])
                                         elif int(time.time()) > (self.lastupdate + 60):
-                                            print "Resumed telemetry from payload " + json_data['payload']
+                                            print ("Resumed telemetry from payload " + json_data['payload'])
                                         self.lastupdate = int(time.time())
 
                                     self.time = timeConverted
@@ -137,7 +137,7 @@ class Lora:
                         return
                     time.sleep(1)
         except:
-            print("ERROR, Lora Lost Connection")
+            print ("ERROR, Lora Lost Connection")
             self.lora_socket.close()
             self.connect()
 

@@ -28,7 +28,7 @@ try:
     if args.config is not None:
         config = FileConfig(args.config)
 except:
-    print "Failed parsing config file, please check that file is accessible and well formatted."
+    print("Failed parsing config file, please check that file is accessible and well formatted.")
     exit()
 
 
@@ -153,21 +153,21 @@ def data_loop(wsock, message):
 
             time.sleep(5)
     except:
-        print "WebSocketError, finish thread"
+        print("WebSocketError, finish thread")
 
 
 lora = Lora(simulate=True, mongo_host=config.mongo_host, mongo_port=config.mongo_port)
 server = WSGIServer(("0.0.0.0", config.server_port), app, handler_class=WebSocketHandler)
 try:
-    print "Serving on IP: {}".format(socket.gethostbyname(socket.gethostname()))
-    print "Serving on port: {}".format(config.server_port)
+    print("Serving on IP: {}".format(socket.gethostbyname(socket.gethostname())))
+    print("Serving on port: {}".format(config.server_port))
 except:
-    print('Error on startup')
+    print ('Error on startup')
 
 try:
     server.serve_forever()
 except KeyboardInterrupt:
-        print 'Script interrupted'
+        print('Script interrupted')
         try:
             sys.exit(0)
         except SystemExit:
