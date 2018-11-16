@@ -6,7 +6,7 @@ import random
 from threading import Thread
 import time
 
-from utils import gateway_time_to_timestamp
+from pits.modules.utils import gateway_time_to_timestamp
 
 class Lora:
 
