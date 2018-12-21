@@ -17,14 +17,16 @@ Then, using [pip](https://pip.pypa.io/en/stable/installing/) package manager for
 ```
 sudo pip install bottle
 sudo pip install gevent-websocket
-sudo pip install pymongo
+sudo pip install pymongo==3.5
 // or
 sudo pip install -r requirements.txt
 ```
 
->Note: For performance, Flypi allows you to save the sessions of flights in MongoDB, but this is not a requirement. If you do not have MongoDB installed and running on the system, it is automatically detected and the sessions being stored on file system instead of database.
+You need to install: `sudo apt-get install python-dev`.
 
-You need to install: `sudo apt-get install python-dev`
+For save data on database: `sudo apt-get install mongodb-server`.
+
+>Note: For performance, Flypi allows you to save the sessions of flights in MongoDB, but this is not a requirement. If you do not have MongoDB installed and running on the system, it is automatically detected and the sessions being stored on file system instead of database.
 
 
 ## How to run
