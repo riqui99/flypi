@@ -156,7 +156,7 @@ def data_loop(wsock, message):
         print("WebSocketError, finish thread")
 
 
-lora = Lora(simulate=True, mongo_host=config.mongo_host, mongo_port=config.mongo_port)
+lora = Lora(simulate=False, mongo_host=config.mongo_host, mongo_port=config.mongo_port)
 server = WSGIServer(("0.0.0.0", config.server_port), app, handler_class=WebSocketHandler)
 try:
     print("Serving on IP: {}".format(socket.gethostbyname(socket.gethostname())))

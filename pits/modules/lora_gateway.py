@@ -8,6 +8,7 @@ import time
 
 from pits.modules.utils import gateway_time_to_timestamp
 
+
 class Lora:
 
     def __init__(self, host="localhost", port=6004, debug=False, simulate=False, mongo_host='localhost', mongo_port=27017):
@@ -231,13 +232,14 @@ class Lora:
         try:
             if self.db is not None:
                 sessions_list = self.db.distinct("session")
+                if len(sessions_list) == 1 and sessions_list[0] is None:
+                    sessions_list = []
             else:
                 sessions_list = [f.replace(".txt", "") for f in os.listdir("sessions") if f != "_.txt" if f != ".gitignore" and os.path.isfile(os.path.join("sessions", f))]
         except:
             sessions_list = []
 
         return sessions_list
-
 
     # SIMULATE GLOBE POSITIONS
     def start_simulation(self):
