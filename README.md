@@ -24,6 +24,8 @@ sudo pip install -r requirements.txt
 
 >Note: For performance, flypi allows you to save the sessions of flights in MongoDB, but this is not a requirement. If you do not have it installed on the system, it is automatically detected and the sessions being stored on file system.
 
+You need to install: `sudo apt-get install python-dev`
+
 
 ## How to run
 
