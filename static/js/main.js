@@ -44,6 +44,7 @@ ws.onmessage = function (evt) {
 		// simulator.update_position_globo(data.lat, data.lon, data.alt, data.time);
 	}
 	else if(json.action ==  "sessions_list"){
+		current_session = json.session;
 		render_sessions_list(json.data);
 	}
 	else if(json.action ==  "new_session") {
@@ -246,13 +247,17 @@ function render_session_data(session, data){
 			<th>Alt</th>\
 			<th>Time</th>\
 		</tr></thead><tbody>';
+		var table_data_limit = 10;
 		for (var i in data) {
-			html_table_results += '<tr>\
-				<td>'+round(data[i].lat, 4)+'</td>\
-				<td>'+round(data[i].lon, 4)+'</td>\
-				<td>'+round(data[i].alt, 0)+'</td>\
-				<td>'+moment(data[i].time, 'X').format('YYYY-MM-DD H:mm')+'</td>\
-			</tr>';
+			table_data_limit--;
+			if(table_data_limit > 0) {
+				html_table_results += '<tr>\
+					<td>' + round(data[i].lat, 4) + '</td>\
+					<td>' + round(data[i].lon, 4) + '</td>\
+					<td>' + round(data[i].alt, 0) + '</td>\
+					<td>' + moment(data[i].time, 'X').format('YYYY-MM-DD H:mm') + '</td>\
+				</tr>';
+			}
 			// DATA CHARTS
 			var vel = 0;
 			if(i > 0) vel = (data[i].alt - data[i-1].alt) / (data[i].time - data[i-1].time);
@@ -481,6 +486,10 @@ function draw_lat_lon_trajectory(data, max_point, min_point){
 		prev_y = y;
 	}
 }
+
+
+// INITS
+$('.tooltipped').tooltip({delay: 50});
 
 
 // SIMULATOR

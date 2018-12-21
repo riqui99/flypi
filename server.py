@@ -83,60 +83,64 @@ def handle_websocket():
 
     while True:
         try:
-            data_ws = json.loads(wsock.receive())
+            _wsock = wsock.receive()
+            if _wsock is not None:
 
-            if data_ws["action"] == "start_data_loop":
-                thread = Thread(target=data_loop, args=(wsock, ""))
-                thread.start()
-            elif data_ws["action"] == "get_sessions_list":
-                data = lora.get_sessions_list()
-                wsock.send(json.dumps({
-                    "action": "sessions_list",
-                    "data": data
-                }))
-            elif data_ws["action"] == "session_data":
-                session = data_ws["session"] if "session" in data_ws else None
-                data = lora.get_stored_data(session=session)
-                wsock.send(json.dumps({
-                    "action": "session_data",
-                    "session": session,
-                    "data": data
-                }))
-            elif data_ws["action"] == "new_session":
-                session = data_ws["session"]
-                if lora.session_exists(session):
+                data_ws = json.loads(_wsock)
+
+                if data_ws["action"] == "start_data_loop":
+                    thread = Thread(target=data_loop, args=(wsock, ""))
+                    thread.start()
+                elif data_ws["action"] == "get_sessions_list":
+                    data = lora.get_sessions_list()
                     wsock.send(json.dumps({
-                        "action": "new_session",
-                        "data": False,
-                        "session": session
+                        "action": "sessions_list",
+                        "data": data,
+                        "session": lora.session
                     }))
-                else:
-                    lora.new_session(session)
+                elif data_ws["action"] == "session_data":
+                    session = data_ws["session"] if "session" in data_ws else None
+                    data = lora.get_stored_data(session=session)
                     wsock.send(json.dumps({
-                        "action": "new_session",
-                        "data": True,
-                        "session": session
+                        "action": "session_data",
+                        "session": session,
+                        "data": data
                     }))
-            elif data_ws["action"] == "start_session":
-                lora.start_session(data_ws["session"])
-                wsock.send(json.dumps({
-                    "action": "session_started",
-                    "done": True,
-                    "session": data_ws["session"]
-                }))
-            elif data_ws["action"] == "finalize_session":
-                lora.finalize_session()
-                wsock.send(json.dumps({
-                    "action": "session_finalized",
-                    "done": True
-                }))
-            elif data_ws["action"] == "remove_session":
-                done = lora.remove_session(data_ws["session"])
-                wsock.send(json.dumps({
-                    "action": "session_removed",
-                    "session": data_ws["session"],
-                    "done": done
-                }))
+                elif data_ws["action"] == "new_session":
+                    session = data_ws["session"]
+                    if lora.session_exists(session):
+                        wsock.send(json.dumps({
+                            "action": "new_session",
+                            "data": False,
+                            "session": session
+                        }))
+                    else:
+                        lora.new_session(session)
+                        wsock.send(json.dumps({
+                            "action": "new_session",
+                            "data": True,
+                            "session": session
+                        }))
+                elif data_ws["action"] == "start_session":
+                    lora.start_session(data_ws["session"])
+                    wsock.send(json.dumps({
+                        "action": "session_started",
+                        "done": True,
+                        "session": data_ws["session"]
+                    }))
+                elif data_ws["action"] == "finalize_session":
+                    lora.finalize_session()
+                    wsock.send(json.dumps({
+                        "action": "session_finalized",
+                        "done": True
+                    }))
+                elif data_ws["action"] == "remove_session":
+                    done = lora.remove_session(data_ws["session"])
+                    wsock.send(json.dumps({
+                        "action": "session_removed",
+                        "session": data_ws["session"],
+                        "done": done
+                    }))
 
         except WebSocketError:
             break
@@ -156,7 +160,8 @@ def data_loop(wsock, message):
         print("WebSocketError, finish thread")
 
 
-lora = Lora(simulate=False, mongo_host=config.mongo_host, mongo_port=config.mongo_port)
+lora = Lora(simulate=config.simulate, mongo_host=config.mongo_host, mongo_port=config.mongo_port)
+app.debug = True
 server = WSGIServer(("0.0.0.0", config.server_port), app, handler_class=WebSocketHandler)
 try:
     print("Serving on IP: {}".format(socket.gethostbyname(socket.gethostname())))

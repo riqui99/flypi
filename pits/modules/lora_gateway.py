@@ -5,6 +5,7 @@ import socket
 import random
 from threading import Thread
 import time
+from bson.json_util import dumps
 
 from pits.modules.utils import gateway_time_to_timestamp
 
@@ -24,7 +25,7 @@ class Lora:
         self.debug = debug
         self.simulate = simulate
 
-        self.session = None
+        self.session = "Unknown Session"
 
         self.ssdv_path = '/home/pi/lora-gateway/ssdv'
         self.SelectedSSDVFile = 0
@@ -184,7 +185,13 @@ class Lora:
                 else:
                     q["time"]["$lt"] = end_time
 
-            return self.db.find(q)
+            cur = self.db.find(q).sort("time", -1)
+            arr = []
+            for c in cur:
+                _json = json.loads(dumps(c))
+                _json["_id"] = _json["_id"]["$oid"]
+                arr.append(_json)
+            return arr
         else:
             session_file = "sessions/_.txt" if session is None else 'sessions/{}.txt'.format(session)
             try:
