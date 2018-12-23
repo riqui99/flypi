@@ -172,7 +172,7 @@ except:
 try:
     server.serve_forever()
 except KeyboardInterrupt:
-        print('Script interrupted')
+        print('Script interrupted. Software is not running now!')
         try:
             sys.exit(0)
         except SystemExit:
