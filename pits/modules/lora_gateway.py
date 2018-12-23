@@ -40,7 +40,7 @@ class Lora:
             mongo.server_info()
             self.db = mongo["flypi"]["data"]
         except:
-            print ("No MongoDB Found")
+            print ("No MongoDB Found. This software will save the data in the file system.")
             self.new_session("_")
             self.db = None
 
@@ -56,12 +56,12 @@ class Lora:
                 self.lora_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 self.lora_socket.connect((self.host, self.port))
 
-                print ("Connected to gateway")
+                print ("Connected to gateway. This software are dettecting and receiving data from lora-gateway application.")
 
                 thread = Thread(target=self.process_lora, args=())
                 thread.start()
             except:
-                print ("ERROR on Gateway")
+                print ("ERROR on Gateway. Data from lora-gateway software is not detected. Ensure lora-gateway is running and receving data or use this application on a simulated mode.")
                 if self.lora_socket is not None:
                     self.lora_socket.close()
                 time.sleep(5)
