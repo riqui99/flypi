@@ -29,20 +29,19 @@ For save data on database: `sudo apt-get install mongodb-server`.
 >Note: For performance, Flypi allows you to save the sessions of flights in MongoDB, but this is not a requirement. If you do not have MongoDB installed and running on the system, it is automatically detected and the sessions being stored on file system instead of database.
 
 
-## How to run
+## How to run this application
 
-`python server.py`
+`python server.py` (Expected [Pi-in-the-sky lora-gateway](https://github.com/PiInTheSky/lora-gateway) be running and receiving data)
 
+If you want change some parameter, or you want run this software in simulation mode (without lora-gateway), you should call the server with -c argument and configure `config.json` file.
 
-## Configure it
-If you want change some parameter you should do it calling the server with -c argument.
+`python server.py -c "config.json"`
 
-`python server.py -c "path/to/config_file.json"`
-
-The config file is a json file (you can found an example called config.json on the project root path) with the follow parameters:
-  - server port: The port where the server is running.
-  - mongo_host: If you want to use MongoDB remotely, you can define the host using this parameter
-  - mongo_port: Port for MongoDB connection
+The config file is a json file (you can found it on the project root path) with the follow parameters:
+  - server port: (integer) The port where the server is running.
+  - mongo_host: (string) If you want to use MongoDB remotely, you can define the host using this parameter.
+  - mongo_port: (integer) Port for MongoDB connection.
+  - simulate: (boolean) Set value to true for use this software without lora-gateway or use with a simulated flight. Set to false for use with lora-gateway.
 
 
 ## Some features
