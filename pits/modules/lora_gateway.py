@@ -159,7 +159,7 @@ class Lora:
         if self.db is not None:
             self.db.insert(doc)
         else:
-            session_file = "sessions/_.txt" if self.session is "Unknown Session" else 'sessions/{}.txt'.format(self.session)
+            session_file = "sessions/_.txt" if self.session == "Unknown Session" else 'sessions/{}.txt'.format(self.session)
 
             with open(session_file, 'r+') as outfile:
                 try:
@@ -193,7 +193,7 @@ class Lora:
                 arr.append(_json)
             return arr
         else:
-            session_file = "sessions/_.txt" if session is "Unknown Session" else 'sessions/{}.txt'.format(session)
+            session_file = "sessions/_.txt" if session == "Unknown Session" else 'sessions/{}.txt'.format(session)
             try:
                 with open(session_file, 'r+') as outfile:
                     return json.load(outfile)
