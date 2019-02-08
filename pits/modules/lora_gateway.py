@@ -221,7 +221,7 @@ class Lora:
         self.session = session
 
     def finalize_session(self):
-        self.session = "Unkown Session"
+        self.session = "Unknown Session"
 
     def remove_session(self, session):
         if session == self.session:
