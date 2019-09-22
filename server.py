@@ -22,7 +22,6 @@ parser.add_argument('--config', '-c', default=None,
                     help='Configuration file to change parameters (default: server_port on 8080, MongoDB connection on localhost:27017)')
 
 args = parser.parse_args()
-
 config = Config()
 try:
     if args.config is not None:
@@ -31,7 +30,22 @@ except:
     print("Failed parsing config file, please check that file is accessible and well formatted.")
     exit()
 
+# STORAGE
+try:
+    from pymongo import MongoClient
 
+    mongo = MongoClient(["{}:{}".format(config.mongo_host, config.mongo_port)])
+    mongo.server_info()
+    from helpers.storage.mongo import MongoHelper
+
+    storage_manager = MongoHelper(mongo)
+except:
+    from helpers.storage.txt import TextDBHelper
+
+    print ("No MongoDB Found. Data will be saved in file system.")
+    storage_manager = TextDBHelper()
+
+# WEB SERVER
 app = Bottle()
 
 
@@ -92,15 +106,15 @@ def handle_websocket():
                     thread = Thread(target=data_loop, args=(wsock, ""))
                     thread.start()
                 elif data_ws["action"] == "get_sessions_list":
-                    data = lora.get_sessions_list()
+                    data = storage_manager.get_sessions_list()
                     wsock.send(json.dumps({
                         "action": "sessions_list",
                         "data": data,
-                        "session": lora.session
+                        "session": storage_manager.session
                     }))
                 elif data_ws["action"] == "session_data":
                     session = data_ws["session"] if "session" in data_ws else None
-                    data = lora.get_stored_data(session=session)
+                    data = storage_manager.get_stored_data(session=session)
                     wsock.send(json.dumps({
                         "action": "session_data",
                         "session": session,
@@ -108,34 +122,34 @@ def handle_websocket():
                     }))
                 elif data_ws["action"] == "new_session":
                     session = data_ws["session"]
-                    if lora.session_exists(session):
+                    if storage_manager.session_exists(session):
                         wsock.send(json.dumps({
                             "action": "new_session",
                             "data": False,
                             "session": session
                         }))
                     else:
-                        lora.new_session(session)
+                        storage_manager.new_session(session)
                         wsock.send(json.dumps({
                             "action": "new_session",
                             "data": True,
                             "session": session
                         }))
                 elif data_ws["action"] == "start_session":
-                    lora.start_session(data_ws["session"])
+                    storage_manager.start_session(data_ws["session"])
                     wsock.send(json.dumps({
                         "action": "session_started",
                         "done": True,
                         "session": data_ws["session"]
                     }))
                 elif data_ws["action"] == "finalize_session":
-                    lora.finalize_session()
+                    storage_manager.finalize_session()
                     wsock.send(json.dumps({
                         "action": "session_finalized",
                         "done": True
                     }))
                 elif data_ws["action"] == "remove_session":
-                    done = lora.remove_session(data_ws["session"])
+                    done = storage_manager.remove_session(data_ws["session"])
                     wsock.send(json.dumps({
                         "action": "session_removed",
                         "session": data_ws["session"],
@@ -160,14 +174,14 @@ def data_loop(wsock, message):
         print("WebSocketError, finish thread")
 
 
-lora = Lora(simulate=config.simulate, mongo_host=config.mongo_host, mongo_port=config.mongo_port)
+lora = Lora(simulate=config.simulate, storage_manager=storage_manager)
 app.debug = True
 server = WSGIServer(("0.0.0.0", config.server_port), app, handler_class=WebSocketHandler)
 try:
     print("Serving on IP: {}".format(socket.gethostbyname(socket.gethostname())))
-    print("Serving on port: {}".format(config.server_port))
 except:
-    print ('Error on startup')
+    print ('Serving on IP: 0.0.0.0')
+print("Serving on port: {}".format(config.server_port))
 
 try:
     server.serve_forever()

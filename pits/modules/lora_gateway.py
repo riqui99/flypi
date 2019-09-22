@@ -5,14 +5,12 @@ import socket
 import random
 from threading import Thread
 import time
-from bson.json_util import dumps
-
 from pits.modules.utils import gateway_time_to_timestamp
 
 
 class Lora:
 
-    def __init__(self, host="localhost", port=6004, debug=False, simulate=False, mongo_host='localhost', mongo_port=27017):
+    def __init__(self, host="localhost", port=6004, debug=False, simulate=False, storage_manager=None):
         self.payload = ""
         self.channel = ""
         self.lat = 0
@@ -25,8 +23,6 @@ class Lora:
         self.debug = debug
         self.simulate = simulate
 
-        self.session = "Unknown Session"
-
         self.ssdv_path = '/home/pi/lora-gateway/ssdv'
         self.SelectedSSDVFile = 0
 
@@ -34,15 +30,7 @@ class Lora:
         self.port = port
         self.lora_socket = None
 
-        try:
-            from pymongo import MongoClient
-            mongo = MongoClient(["{}:{}".format(mongo_host, mongo_port)])
-            mongo.server_info()
-            self.db = mongo["flypi"]["data"]
-        except:
-            print ("No MongoDB Found. This software will save the data in the file system.")
-            self.new_session("_")
-            self.db = None
+        self.storage_manager = storage_manager
 
         self.init_lora()
 
@@ -115,13 +103,13 @@ class Lora:
                                     self.lon = json_data['lon']
                                     self.alt = json_data['alt']
 
-                                    self.save_data({
+                                    self.storage_manager.save_data({
                                         "payload": json_data['payload'],
                                         "channel": json_data['channel'],
                                         "lat": json_data['lat'],
                                         "lon": json_data['lon'],
                                         "alt": json_data['alt'],
-                                        "session": self.session,
+                                        "session": self.storage_manager.session,
                                         "time": timeConverted,
                                         "updated_time": int(time.time())
                                     })
@@ -153,100 +141,6 @@ class Lora:
             "time": self.time,
             "last_update": self.lastupdate
         }
-
-    # DATABASE
-    def save_data(self, doc):
-        if self.db is not None:
-            self.db.insert(doc)
-        else:
-            session_file = "sessions/_.txt" if self.session == "Unknown Session" else 'sessions/{}.txt'.format(self.session)
-
-            with open(session_file, 'r+') as outfile:
-                try:
-                    data = json.load(outfile)
-                except:
-                    data = []
-                data.append(doc)
-            with open(session_file, 'w+') as outfile:
-                outfile.write(json.dumps(data))
-
-    def get_stored_data(self, payload=None, start_time=None, end_time=None, session=None):
-        if self.db is not None:
-            q = {}
-            if payload is not None:
-                q["payload"] = payload
-            if session is not None:
-                q["session"] = session
-            if start_time is not None:
-                q["time"] = {"$gt": start_time}
-            if end_time is not None:
-                if "time" not in q:
-                    q["time"] = {"$lt": end_time}
-                else:
-                    q["time"]["$lt"] = end_time
-
-            cur = self.db.find(q).sort("time", -1)
-            arr = []
-            for c in cur:
-                _json = json.loads(dumps(c))
-                _json["_id"] = _json["_id"]["$oid"]
-                arr.append(_json)
-            return arr
-        else:
-            session_file = "sessions/_.txt" if session == "Unknown Session" else 'sessions/{}.txt'.format(session)
-            try:
-                with open(session_file, 'r+') as outfile:
-                    return json.load(outfile)
-            except:
-                return []
-
-    def session_exists(self, session):
-        if self.db is not None:
-            row = self.db.find_one({"session": session})
-            return row is not None
-        # File Session Mode
-        if os.path.isfile('sessions/{}.txt'.format(session)):
-            return True
-        return False
-
-    def new_session(self, session):
-        # File Session Mode
-        if not os.path.isfile('sessions/{}.txt'.format(session)):
-            f = open('sessions/{}.txt'.format(session), "w+")
-            f.close()
-
-    def start_session(self, session):
-        if self.db is None:
-            self.new_session(session)
-        self.session = session
-
-    def finalize_session(self):
-        self.session = "Unknown Session"
-
-    def remove_session(self, session):
-        if session == self.session:
-            self.finalize_session()
-
-        if self.db is not None:
-            self.db.remove({"session": session})
-        else:
-            if os.path.isfile('sessions/{}.txt'.format(session)):
-                os.remove('sessions/{}.txt'.format(session))
-
-        return True
-
-    def get_sessions_list(self):
-        try:
-            if self.db is not None:
-                sessions_list = self.db.distinct("session")
-                if len(sessions_list) == 1 and sessions_list[0] is None:
-                    sessions_list = []
-            else:
-                sessions_list = [f.replace(".txt", "") for f in os.listdir("sessions") if f != "_.txt" if f != ".gitignore" and os.path.isfile(os.path.join("sessions", f))]
-        except:
-            sessions_list = []
-
-        return sessions_list
 
     # SIMULATE GLOBE POSITIONS
     def start_simulation(self):
@@ -281,13 +175,13 @@ class Lora:
                 self.alt = 0
                 start_time = time.time()
 
-            self.save_data({
+            self.storage_manager.save_data({
                 "payload": self.payload,
                 "channel": self.channel,
                 "lat": self.lat,
                 "lon": self.lon,
                 "alt": self.alt,
-                "session": self.session,
+                "session": self.storage_manager.session,
                 "time": self.time,
                 "updated_time": int(time.time())
             })
